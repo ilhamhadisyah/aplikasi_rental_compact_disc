@@ -6,8 +6,10 @@
 package Form;
 
 import Koneksi.Koneksi;
+import Koneksi.dataSource;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,6 +28,7 @@ import javax.swing.table.DefaultTableModel;
  * @author USER
  */
 public class FormKembali extends javax.swing.JFrame {
+    dataSource data = new dataSource();
 
     /**
      * Creates new form FormLogin
@@ -52,33 +55,9 @@ public class FormKembali extends javax.swing.JFrame {
         
     }
     protected void datatable() {
-
-        Object[] Baris = {"ID Barang","Nama Barang", "Jumlah Pinjam", "Tanggal Pinjam", "Tanggal Kembali"};
-        tabmode = new DefaultTableModel(null, Baris);
+        tabmode = data.kembali_select(nrpUser);
         tbl_kembali.setModel(tabmode);
-        String sql = "SELECT barang.id_barang, login.nrp,nama_barang,SUM(jmlpinjam)as jml,tgl_pinjam, tgl_kembali "
-                + "FROM peminjaman,barang,login "
-                + "WHERE barang.id_barang=peminjaman.id_barang "
-                + "AND login.nrp=peminjaman.nrp AND login.nrp='" + nrpUser + "'"
-                + "GROUP by peminjaman.ID_barang";
-        try {
-            java.sql.Statement stat = conn.createStatement();
-            ResultSet hasil = stat.executeQuery(sql);
-            while (hasil.next()) {
-                String nrp = hasil.getString("nrp");
-                String id = hasil.getString("id_barang");
-                String brg = hasil.getString("nama_barang");
-                String jml = hasil.getString("jml");
-                String pinjam = hasil.getString("tgl_pinjam");
-                String kembali = hasil.getString("tgl_kembali");
-
-                String[] data = {id, brg, jml, pinjam, kembali};
-                tabmode.addRow(data);
-            }
-        } catch (Exception e) {
-
-        }
-    }
+    }    
     int mouseX;
     int mouseY;
 
@@ -154,7 +133,7 @@ public class FormKembali extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 28)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("KEMBALIKAN BARANG");
+        jLabel5.setText("KEMBALIKAN COMPACT DISC");
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/icons8_Minimize_Window_25px.png"))); // NOI18N
         jLabel4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -171,7 +150,7 @@ public class FormKembali extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(28, 28, 28)
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 436, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 347, Short.MAX_VALUE)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
@@ -197,7 +176,7 @@ public class FormKembali extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("NAMA BARANG        :");
+        jLabel2.setText("NAMA CD                :");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
@@ -264,7 +243,7 @@ public class FormKembali extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("ID BARANG             :");
+        jLabel6.setText("NOMOR ID CD         :");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -408,20 +387,17 @@ public class FormKembali extends javax.swing.JFrame {
         String jml=txt_jml.getText();
         String pinjam=txt_pinjam.getText();
         String kembali=txt_kembali.getText();
-        try {
-            String sql = "insert into pengembalian(id_barang,nrp,jmlpinjam, tgl_pinjam,tgl_kembali) values ('" + id + "','" + nrpUser + "','" + jml + "','" + pinjam + "','" + kembali + "')";
-            PreparedStatement stat = conn.prepareStatement(sql);
-            stat.execute();
-            JOptionPane.showMessageDialog(null, "BARANG DIKEMBALIKAN");
-            kosong();
-            String delete="delete from peminjaman where id_barang='"+id+"' AND nrp='"+nrpUser+"' AND tgl_pinjam='"+pinjam+"'";
-            PreparedStatement statdel = conn.prepareStatement(delete);
-            statdel.executeUpdate(delete);
-            datatable();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex);
-        }
+        boolean kondisi = false;
+
+        kondisi = data.kembali_insert(nrpUser,id, jml, pinjam, kembali);
+        if (kondisi==true) {
+                kosong();
+                datatable();
+            }else{
+                kosong();
+            }
     }//GEN-LAST:event_jLabel8MouseClicked
+
 
     /**
      * @param args the command line arguments

@@ -6,6 +6,7 @@
 package Form;
 
 import Koneksi.Koneksi;
+import Koneksi.dataSource;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Toolkit;
@@ -19,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
  * @author USER
  */
 public class FormKeranjang extends javax.swing.JFrame {
+    dataSource data = new dataSource();
 
     /**
      * Creates new form FormLogin
@@ -28,32 +30,12 @@ public class FormKeranjang extends javax.swing.JFrame {
 
     protected void datatable() {
 
-        String nrpUser = FormLogin.User;
-        Object[] Baris = {"Nama Barang", "Jumlah Pinjam", "Tanggal Pinjam", "Tanggal Kembali"};
-        tabmode = new DefaultTableModel(null, Baris);
+        String username = FormLogin.User;
+        tabmode =data.keranjang_select(username);
         tbl_pinjam.setModel(tabmode);
-        String sql = "SELECT login.nrp,nama_barang,SUM(jmlpinjam)as jml,tgl_pinjam, tgl_kembali "
-                + "FROM peminjaman,barang,login "
-                + "WHERE barang.id_barang=peminjaman.id_barang "
-                + "AND login.nrp=peminjaman.nrp AND login.nrp='" + nrpUser + "'"
-                + "GROUP by peminjaman.ID_barang";
-        try {
-            java.sql.Statement stat = conn.createStatement();
-            ResultSet hasil = stat.executeQuery(sql);
-            while (hasil.next()) {
-                String nrp = hasil.getString("nrp");
-                String brg = hasil.getString("nama_barang");
-                String jml = hasil.getString("jml");
-                String pinjam = hasil.getString("tgl_pinjam");
-                String kembali = hasil.getString("tgl_kembali");
-
-                String[] data = {brg, jml, pinjam, kembali};
-                tabmode.addRow(data);
-            }
-        } catch (Exception e) {
-
-        }
     }
+
+    
     int mouseX;
     int mouseY;
 

@@ -16,13 +16,16 @@ import java.sql.SQLException;
 public class Koneksi {
     private Connection koneksi;
     public Connection connect() {
+        
         try {
             Class.forName("com.mysql.jdbc.Driver");
             System.out.println("berhasil konek");
         } catch (ClassNotFoundException ex) {
             System.out.println("gagal konek" + ex);
         }
-        String url= "jdbc:mysql://localhost/peminjaman_brg";
+        
+        
+        String url= "jdbc:mysql://localhost/cd?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
         try {
             koneksi = (Connection) DriverManager.getConnection(url, "root", "");
         } catch (SQLException ex) {

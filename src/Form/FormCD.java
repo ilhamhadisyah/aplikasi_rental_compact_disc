@@ -6,8 +6,10 @@
 package Form;
 
 import Koneksi.Koneksi;
+import Koneksi.dataSource;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,7 +24,8 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author USER
  */
-public class FormBarang extends javax.swing.JFrame {
+public class FormCD extends javax.swing.JFrame {
+    dataSource data = new dataSource();
 
     /**
      * Creates new form FormLogin
@@ -45,29 +48,15 @@ public class FormBarang extends javax.swing.JFrame {
     }
 
     protected void datatable() {
-        Object[] Baris = {"Kode Barang", "Nama Barang", "Stock"};
-        tabmode = new DefaultTableModel(null, Baris);
+        tabmode =data.cd_select();
         tbl_barang.setModel(tabmode);
-        String sql = "select * from barang";
-        try {
-            java.sql.Statement stat = conn.createStatement();
-            ResultSet hasil = stat.executeQuery(sql);
-            while (hasil.next()) {
-                String ID_Barang = hasil.getString("ID_Barang");
-                String nama_barang = hasil.getString("nama_barang");
-                String Stock = hasil.getString("Stock");
-
-                String[] data = {ID_Barang, nama_barang, Stock};
-                tabmode.addRow(data);
-            }
-        } catch (Exception e) {
-
-        }
+        
     }
+
     int mouseX;
     int mouseY;
 
-    public FormBarang() {
+    public FormCD() {
         initComponents();
         datatable();
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -131,7 +120,7 @@ public class FormBarang extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 28)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("INVENTORI BARANG");
+        jLabel5.setText("INVENTORI COMPACT DISC");
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/icons8_Minimize_Window_25px.png"))); // NOI18N
         jLabel4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -148,7 +137,7 @@ public class FormBarang extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(28, 28, 28)
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 306, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 217, Short.MAX_VALUE)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
@@ -192,15 +181,15 @@ public class FormBarang extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("KODE BARANG  :");
+        jLabel2.setText("KODE CD  :");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("NAMA BARANG :");
+        jLabel3.setText("NAMA CD :");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("STOK BARANG :");
+        jLabel6.setText("STOK CD  :");
 
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/icons8_Save_48px.png"))); // NOI18N
         jLabel8.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -353,25 +342,21 @@ public class FormBarang extends javax.swing.JFrame {
 
     private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
         String stok = txt_stock.getText();
+        boolean kondisi = false;
+        String id = txt_kode.getText();
+        String nama = txt_nama.getText();
+        String jumlah = txt_stock.getText();
+        
+            
         int result = Integer.parseInt(stok);
         if (result > 0) {
-            String sql = "insert into barang(ID_Barang,nama_barang,Stock) values (?,?,?)";
-            try {
-                PreparedStatement stat = conn.prepareStatement(sql);
-                stat.setString(1, txt_kode.getText());
-                stat.setString(2, txt_nama.getText());
-                stat.setString(3, txt_stock.getText());
-                System.out.println(txt_kode.getText());
-                System.out.println(txt_nama.getText());
-                System.out.println(txt_stock.getText());
-
-                stat.executeUpdate();
-                JOptionPane.showMessageDialog(null, "DATA BERHASIL DISIMPAN");
+            kondisi = data.cd_insert(id,nama,jumlah);
+            
+            if (kondisi==true) {
                 kosong();
                 txt_kode.requestFocus();
                 datatable();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "ERROR INPUT");
+            }else{
                 kosong();
             }
         } else {
@@ -380,40 +365,41 @@ public class FormBarang extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jLabel8MouseClicked
 
+
     private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
+        boolean kondisi = false;
         int ok = JOptionPane.showConfirmDialog(null, "YAKIN MAU HAPUS?", "PESAN KONFIRMASI", JOptionPane.YES_NO_CANCEL_OPTION);
+        String id = txt_kode.getText();
         if (ok == 0) {
-            String sql = "delete from barang where ID_Barang = '" + txt_kode.getText() + "'";
-            try {
-                PreparedStatement stat = conn.prepareStatement(sql);
-                stat.executeUpdate();
-                JOptionPane.showMessageDialog(null, "DATA BERHASIL DIHAPUS");
+            kondisi=data.cd_delete(id);
+            if (kondisi==true) {
                 kosong();
                 txt_kode.requestFocus();
                 datatable();
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "data gagal dihapus" + e);
+            }else{
+                kosong();
             }
+            
         }
     }//GEN-LAST:event_jLabel11MouseClicked
 
-    private void jLabel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseClicked
-        try {
-            String sql = "update barang set ID_Barang=?, nama_barang=?, Stock=? where ID_Barang='" + txt_kode.getText() + "'";
-            PreparedStatement stat = conn.prepareStatement(sql);
-            stat.setString(1, txt_kode.getText());
-            stat.setString(2, txt_nama.getText());
-            stat.setString(3, txt_stock.getText());
 
-            stat.executeUpdate();
-            JOptionPane.showMessageDialog(null, "DATA BERHASIL DIUBAH");
-            kosong();
-            txt_kode.requestFocus();
-            datatable();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "DATA GAGAL DIUBAH" + e);
-        }
+    private void jLabel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel10MouseClicked
+        boolean kondisi = false;
+        String id = txt_kode.getText();
+        String nama = txt_nama.getText();
+        String jumlah = txt_stock.getText();
+        kondisi=data.cd_update(id,nama,jumlah);
+        if (kondisi==true) {
+                kosong();
+                txt_kode.requestFocus();
+                datatable();
+            }else{
+                kosong();
+            }
     }//GEN-LAST:event_jLabel10MouseClicked
+
+   
 
     private void tbl_barangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_barangMouseClicked
         int bar = tbl_barang.getSelectedRow();
@@ -448,14 +434,22 @@ public class FormBarang extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FormBarang.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormCD.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FormBarang.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormCD.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FormBarang.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormCD.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FormBarang.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FormCD.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>

@@ -10,6 +10,7 @@ import java.awt.Frame;
 import java.awt.Toolkit;
 import javax.swing.JOptionPane;
 import Koneksi.Koneksi;
+import Koneksi.dataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -26,6 +28,7 @@ import javax.swing.table.DefaultTableModel;
  * @author USER
  */
 public class FormPinjam extends javax.swing.JFrame {
+    dataSource data = new dataSource();
 
     /**
      * Creates new form FormLogin
@@ -37,13 +40,23 @@ public class FormPinjam extends javax.swing.JFrame {
     ArrayList<DataPinjam> listData = new ArrayList<DataPinjam>();
     DefaultTableModel tabelModel;
 
-    protected void listbrg() {
+    protected void listbrg() throws SQLException {
+        ResultSet result;
+        result = data.pinjam_select();
+        while (result.next()) {
+                list_brg.addItem(result.getString(2));
+        }
+        //pinjam_select();
+    }
+
+    public void pinjam_select() {
         try {
             String sql = "select id_barang,nama_barang from barang";
             Statement stat = conn.createStatement();
             ResultSet result = stat.executeQuery(sql);
             while (result.next()) {
                 list_brg.addItem(result.getString(2));
+                
             }
         } catch (SQLException e) {
         }
@@ -91,7 +104,7 @@ public class FormPinjam extends javax.swing.JFrame {
         listData.add(ed);
     }
 
-    public FormPinjam() {
+    public FormPinjam() throws SQLException {
         initComponents();
         tampilData();
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -163,7 +176,7 @@ public class FormPinjam extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 28)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("PINJAM BARANG");
+        jLabel5.setText("PINJAM COMPACT DISC");
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Gambar/icons8_Minimize_Window_25px.png"))); // NOI18N
         jLabel4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -184,9 +197,9 @@ public class FormPinjam extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(28, 28, 28)
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(labelNrp)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 454, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 357, Short.MAX_VALUE)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
@@ -214,11 +227,11 @@ public class FormPinjam extends javax.swing.JFrame {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("NAMA BARANG        :");
+        jLabel2.setText("JUDUL CD               :");
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("JUMLAH BARANG     :");
+        jLabel3.setText("JUMLAH CD             :");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
@@ -284,7 +297,7 @@ public class FormPinjam extends javax.swing.JFrame {
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 0, 13)); // NOI18N
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setText("NRP                       :");
+        jLabel10.setText("NRP                        :");
 
         txt_nrp.setBackground(new java.awt.Color(0, 0, 0));
         txt_nrp.setForeground(new java.awt.Color(255, 255, 255));
@@ -434,15 +447,14 @@ public class FormPinjam extends javax.swing.JFrame {
     }//GEN-LAST:event_txt_pinjamActionPerformed
 
     private void btn_addMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_addMouseClicked
+        String nrp = txt_nrp.getText();
+        String list = list_brg.getSelectedItem().toString();
+        String jml = txt_jml.getText();
+        String pinjam = txt_pinjam.getText();
+        String kembali = txt_kembali.getText();
         try {
-            String nrp = txt_nrp.getText();
-            String list = list_brg.getSelectedItem().toString();
-            String jml = txt_jml.getText();
-            String pinjam = txt_pinjam.getText();
-            String kembali = txt_kembali.getText();
-            String queryi = "select id_barang,stock from barang where nama_barang = '" + list + "'";
-            PreparedStatement pst1 = conn.prepareStatement(queryi);
-            ResultSet rs = pst1.executeQuery();
+            
+            ResultSet rs = data.pinjam_add(list);
             String id = null, stock = null;
             while (rs.next()) {
                 id = rs.getString("id_barang");
@@ -466,6 +478,7 @@ public class FormPinjam extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btn_addMouseClicked
 
+
     private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
         try {
             int rows = tbl_pinjam.getRowCount();
@@ -476,18 +489,15 @@ public class FormPinjam extends javax.swing.JFrame {
                 String c = (String) tbl_pinjam.getValueAt(row, 2);
                 String d = (String) tbl_pinjam.getValueAt(row, 3);
                 String e = (String) tbl_pinjam.getValueAt(row, 4);
-                String queryi = "select id_barang from barang where nama_barang = '" + b + "'";
-                PreparedStatement pst1 = conn.prepareStatement(queryi);
-                ResultSet rs = pst1.executeQuery();
+                
+                ResultSet rs = data.pinjam_select(b);
                 String zzz = null;
                 while (rs.next()) {
                     zzz = rs.getString("id_barang");
                     String[] data = {zzz};
                 }
                 System.out.println(zzz);
-                String query = "Insert into peminjaman(NRP,JmlPinjam,ID_Barang, Tgl_Pinjam,Tgl_Kembali) values ('" + a + "','" + c + "','" + zzz + "','" + d + "','" + e + "')";
-                PreparedStatement pst = conn.prepareStatement(query);
-                pst.execute();
+                data.pinjam_insert(a, c, zzz, d, e);
             }
             JOptionPane.showMessageDialog(null, "Data Tersimpan");
         } catch (Exception e) {
@@ -497,6 +507,10 @@ public class FormPinjam extends javax.swing.JFrame {
         new FormMenu().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jLabel11MouseClicked
+
+    
+
+    
 
     private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
         new FormMenu().setVisible(true);
